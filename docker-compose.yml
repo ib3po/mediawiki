@@ -1,0 +1,36 @@
+services:
+  mediawiki:
+    image: mediawiki:latest
+    ports:
+      - "8080:80"
+    environment:
+      - MEDIAWIKI_DB_TYPE=mysql
+      - MEDIAWIKI_DB_HOST=db
+      - MEDIAWIKI_DB_NAME=mediawiki
+      - MEDIAWIKI_DB_USER=totheark
+      - MEDIAWIKI_DB_PASSWORD=/run/secrets/mysql_password
+    secrets:
+      - mysql_password
+    depends_on:
+      - db
+    volumes:
+      - ./mediawiki_data:/var/www/html/images
+      # Comment out below line until
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - MYSQL_DATABASE=mediawiki
+      - MYSQL_USER=totheark
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+    volumes:
+      - ./db_data:/var/lib/mysql
+    secrets:
+    - mysql_root_password
+    - mysql_password
+secrets:
+  mysql_root_password:
+    file: ./mysql_root_password.txt
+  mysql_password:
+    file: ./mysql_password.txt
