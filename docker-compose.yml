@@ -2,7 +2,7 @@ services:
   mediawiki:
     image: mediawiki:latest
     ports:
-      - "8080:80"
+      - "192.168.1.14:8080:80"
     environment:
       - MEDIAWIKI_DB_TYPE=mysql
       - MEDIAWIKI_DB_HOST=db
@@ -15,8 +15,12 @@ services:
       - db
     volumes:
       - ./mediawiki_data:/var/www/html/images
-      # Uncomment out below line once LocalSettings.php is downloaded and in place. 
-      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
+      # Comment out below line until
+      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./images:/var/www/html/images
+      - ./init.sh:/init.sh:ro
+    #restart: always
+    entrypoint: ["/bin/sh", "/init.sh"]
   db:
     image: mysql:8.4
     environment:
@@ -29,6 +33,7 @@ services:
     secrets:
     - mysql_root_password
     - mysql_password
+    restart: always
 secrets:
   mysql_root_password:
     file: ./mysql_root_password.txt
